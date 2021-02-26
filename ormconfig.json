@@ -4,5 +4,11 @@
     "port": 3306,
     "username": "root",
     "password": "mysql",
-    "database": "conexia"
+    "database": "conexia",
+    "migrations":[
+        "./src/database/migrations/*.ts"
+    ],
+    "cli": {
+        "migrationsDir":"./src/database/migrations"
+    }
 }
