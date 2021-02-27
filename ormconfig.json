@@ -5,6 +5,7 @@
     "username": "root",
     "password": "mysql",
     "database": "conexia",
+    "logging": true,
     "entities": [
         "./src/models/*.ts"
     ],
