@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { container } from 'tsyringe';
 
 import CreateSessionService from '@modules/users/services/CreateSessionService';
 
@@ -7,7 +8,7 @@ const sessionsRouter = Router();
 sessionsRouter.post('/', async (request, response) => {
   const { email, password } = request.body;
 
-  const createSession = new CreateSessionService();
+  const createSession = container.resolve(CreateSessionService);
 
   const sessionCreated = await createSession.execute({ email, password });
 

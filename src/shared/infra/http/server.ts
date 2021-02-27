@@ -6,6 +6,8 @@ import 'express-async-errors';
 import routes from '@shared/infra/http/routes';
 import AppError from '@shared/errors/AppError';
 
+import '@shared/container'
+
 const app = express();
 
 app.use(express.json());

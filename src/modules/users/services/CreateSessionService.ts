@@ -1,9 +1,9 @@
-import { getRepository } from 'typeorm';
 import { sign } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
 import User from '@modules/users/infra/typeorm/entities/User';
 import authConfig from '@config/auth';
 import AppError from '@shared/errors/AppError';
+import IUsersRepository from '../repositories/IUsersRepository';
 
 interface Request {
   email: string;
@@ -15,10 +15,11 @@ interface Response {
 }
 
 class CreateSessionService {
-  public async execute({ email, password }: Request): Promise<Response> {
-    const usersRepository = getRepository(User);
+  constructor(private usersRepository: IUsersRepository){}
 
-    const user = await usersRepository.findOne({ where: { email } });
+  public async execute({ email, password }: Request): Promise<Response> {
+
+    const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
       throw new AppError('Invalid Email or Password', 401);
@@ -31,7 +32,7 @@ class CreateSessionService {
 
     const { secret, expiresIn } = authConfig.jwt;
 
-    const token = await sign({}, secret, {
+    const token = sign({}, secret, {
       subject: user.id,
       expiresIn,
     });
