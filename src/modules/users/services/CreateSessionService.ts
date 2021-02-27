@@ -1,5 +1,7 @@
 import { sign } from 'jsonwebtoken';
 import { compare } from 'bcrypt';
+import { injectable, inject } from 'tsyringe';
+
 import User from '@modules/users/infra/typeorm/entities/User';
 import authConfig from '@config/auth';
 import AppError from '@shared/errors/AppError';
@@ -14,8 +16,12 @@ interface Response {
   token: string;
 }
 
+@injectable()
 class CreateSessionService {
-  constructor(private usersRepository: IUsersRepository){}
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: IUsersRepository
+    ){}
 
   public async execute({ email, password }: Request): Promise<Response> {
 
