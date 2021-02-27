@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import 'reflect-metadata';
-import './database';
+import './shared/database';
 
 import express, { Request, Response, NextFunction } from 'express';
 import 'express-async-errors';
-import routes from './routes';
-import AppError from './errors/AppError';
+import routes from './shared/routes';
+import AppError from './shared/errors/AppError';
 
 const app = express();
 
