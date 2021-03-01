@@ -1,9 +1,10 @@
-import { injectable, inject } from 'tsyringe'
+import { injectable, inject } from 'tsyringe';
+import path from 'path';
 
-// import User from '@modules/users/infra/typeorm/entities/User';
 import AppError from '@shared/errors/AppError';
+
+import IMailProvider from '@shared/provider/MailProvider/models/IMailProvider';
 import IUsersRepository from '../repositories/IUsersRepository';
-import IMailProvider from '@shared/provider/MailProvider/models/IMailProvider'
 import IUserTokensRepository from '../repositories/IUserTokensRepository';
 
 interface IRequest {
@@ -12,32 +13,47 @@ interface IRequest {
 
 @injectable()
 class SendForgotPasswordEmailService {
-
   constructor(
     @inject('UsersRepository')
-    private userRepository: IUsersRepository,
+    private usersRepository: IUsersRepository,
+
     @inject('MailProvider')
     private mailProvider: IMailProvider,
+
     @inject('UserTokensRepository')
-    private userTokensRepository: IUserTokensRepository
+    private userTokensRepository: IUserTokensRepository,
   ) { }
 
-  public async execute({
-    email
-  }: IRequest): Promise<void> {
-
-    const user = await this.userRepository.findByEmail(email)
+  public async execute({ email }: IRequest): Promise<void> {
+    const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
-      throw new AppError('Email not registered')
-
+      throw new AppError('User does not exists.');
     }
 
     const { token } = await this.userTokensRepository.generate(user.id);
 
-    await this.mailProvider.sendMail(email,
-      `Pedido de recuperação de senha recebido: ${token}`,
-    )
+    const forgotPasswordTemplate = path.resolve(
+      __dirname,
+      '..',
+      'views',
+      'forgot_password.hbs',
+    );
+
+    await this.mailProvider.sendMail({
+      to: {
+        name: user.name,
+        email: user.email,
+      },
+      subject: '[Backent Test] Password Recovery',
+      templateData: {
+        file: forgotPasswordTemplate,
+        variables: {
+          name: user.name,
+          link: `http://localhost:3333/reset_password?token=${token}`,
+        },
+      },
+    });
   }
 }
 
